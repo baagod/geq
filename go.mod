@@ -1,3 +1,3 @@
-module geq
+module github.com/baa-god/geq
 
 go 1.18
