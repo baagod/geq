@@ -1,41 +1,51 @@
 package eq
 
-func Eq(v interface{}) Value { // 大于 >
-	return Value{value: v}.gt(true)
+// Eq 等于 >
+func Eq(v any) Value {
+	return Value{value: v}.eq()
 }
 
-func Gt(v interface{}) Value { // 大于 >
-	return Value{value: v}.gt(true)
+// Gt 大于 >
+func Gt(v any) Value {
+	return Value{value: v}.gt()
 }
 
-func Ge(v interface{}) Value { // 大于 ≥
-	return Value{value: v}.ge(true)
+// Ge 大于 ≥
+func Ge(v any) Value {
+	return Value{value: v}.ge()
 }
 
-func Lt(v interface{}) Value { // 小于 <
-	return Value{value: v}.lt(true)
+// Lt 小于 <
+func Lt(v any) Value {
+	return Value{value: v}.lt()
 }
 
-func Le(v interface{}) Value { // ≤
-	return Value{value: v}.le(true)
+// Le ≤
+func Le(v any) Value {
+	return Value{value: v}.le()
 }
 
-func Ne(v interface{}) Value { // 不等于 ≠
-	return Value{value: v}.ne(true)
+// Ne 不等于 ≠
+func Ne(v any) Value {
+	return Value{value: v}.ne()
+}
+
+func Between(first any, second any) Value {
+	return Value{value: []any{first, second}}.between()
 }
 
 // ---
 
-func Expr(v interface{}) Value { // 是否表达式，表达式的值会原样输出，不带单引号[‘’]
-	return Value{value: v}.Expr(true)
+func Expr(v any) Value { // 是否表达式，表达式的值会原样输出，不带单引号[‘’]
+	return Value{value: v}.Expr()
 }
 
-func Not[T any](v T, operator func(v T) bool) Value { // 是否排除该值
-	return Value{value: v}.Not(operator(v))
+func Out[T any](v T, operator func(v T) bool) Value { // 是否排除该值
+	return Value{value: v}.Out(operator(v))
 }
 
-func NonZero(v interface{}) Value { // 非零值，零值会被过滤掉
-	return Value{value: v}.NonZero()
+func NoZero(v any) Value { // 非零值，零值会被过滤掉
+	return Value{value: v}.NoZero()
 }
 
 // ----

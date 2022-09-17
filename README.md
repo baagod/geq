@@ -1,2 +1,3 @@
 # geq
-一个为 golang 生成各种 sql 语句的的库。
+
+geq 是一个从 golang 结构转化为 sql 条件语句的库。
