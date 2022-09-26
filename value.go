@@ -36,11 +36,7 @@ func (v *Value) NoZero() *Value {
 }
 
 func (v *Value) String() string {
-    if v.isExpr {
-        if _, ok := v.value.(string); ok {
-            return fmt.Sprintf("'%v'", v.value)
-        }
-    } else if v.isBetween {
+    if v.isBetween {
         slice := reflect.ValueOf(v.value).Slice(0, 2)
         first := slice.Index(0).Interface()
         second := slice.Index(1).Interface()
@@ -54,6 +50,16 @@ func (v *Value) String() string {
         }
 
         return fmt.Sprintf("%v AND %v", first, second)
+    }
+
+    if v.isExpr {
+        if _, ok := (v.value).(string); ok {
+            return fmt.Sprintf("'%s'", v.value)
+        }
+    }
+
+    if _, ok := (v.value).(string); ok {
+        return fmt.Sprintf("'%s'", v.value)
     }
 
     return fmt.Sprint(v.value)
