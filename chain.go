@@ -108,7 +108,6 @@ func cut(m map[string]any) map[string]any {
             for i := mv.Len() - 1; i >= 0; i-- { // 正序删除 mv 元素会出错
                 v = mv.Index(i).Interface()
                 if val, ok := v.(*Value); ok && val.ignore() { // 忽略值
-                    val.isExpr = true
                     mv = reflect.AppendSlice(mv.Slice(0, i), mv.Slice(i+1, mv.Len())) // 移除第 i 个元素
                 }
             }
@@ -119,6 +118,11 @@ func cut(m map[string]any) map[string]any {
             }
 
             if val, ok := v.(*Value); ok {
+                if val.isExpr = true; val.ignore() { // 排除该字段
+                    delete(m, k)
+                    continue
+                }
+
                 m[k] = val.String()
                 continue
             }
