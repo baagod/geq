@@ -52,13 +52,7 @@ func (v *Value) String() string {
         return fmt.Sprintf("%v AND %v", first, second)
     }
 
-    if v.isExpr {
-        if _, ok := (v.value).(string); ok {
-            return fmt.Sprintf("'%s'", v.value)
-        }
-    }
-
-    if _, ok := (v.value).(string); ok {
+    if _, ok := v.value.(string); ok && !v.isExpr {
         return fmt.Sprintf("'%s'", v.value)
     }
 
