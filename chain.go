@@ -123,7 +123,7 @@ func cut(m map[string]any) map[string]any {
                     continue
                 }
 
-                m[k] = val.String()
+                m[k] = val.val()
                 continue
             }
 
@@ -136,7 +136,7 @@ func cut(m map[string]any) map[string]any {
                 continue
             }
 
-            m[k] = val.String()
+            m[k] = val.val()
         }
     }
 

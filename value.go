@@ -36,6 +36,13 @@ func (v *Value) NoZero() *Value {
 }
 
 func (v *Value) String() string {
+    return fmt.Sprint(v.val())
+}
+
+// 私有方法
+
+// val 返回具体包装在 Value 中的值
+func (v *Value) val() any {
     if v.isBetween {
         slice := reflect.ValueOf(v.value).Slice(0, 2)
         first := slice.Index(0).Interface()
@@ -56,10 +63,8 @@ func (v *Value) String() string {
         return fmt.Sprintf("'%s'", v.value)
     }
 
-    return fmt.Sprint(v.value)
+    return v.value
 }
-
-// 私有方法
 
 // ignore 如果该值是被忽略的，则返回 true，否则为 false。
 func (v *Value) ignore() bool {
