@@ -3,83 +3,66 @@ package ged
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
-type between struct {
-	first  *Value
-	second *Value
-}
-
-type or struct {
-	values []*Value
-}
-
 type Value struct {
-	value     any
-	isEq      bool // 等于 =
-	isGt      bool // 大于 >
-	isGe      bool // 大于等于 ≥
-	isLt      bool // 小于 <
-	isLe      bool // 小于等于 ≤
-	isNe      bool // 不等于 ≠
-	isOr      bool // 或者 or
-	isBetween bool // 区间 BETWEEN
-	isExpr    bool // 是否表达式
-	isSkip    bool // 是否跳过值
-	isNoZero  bool // 是否非零值
-}
-
-func (v *Value) Expr() *Value {
-	v.isExpr = true
-	return v
-}
-
-func (v *Value) Skip() *Value {
-	v.isSkip = true
-	return v
-}
-
-func (v *Value) NoZero() *Value {
-	v.isNoZero = true
-	return v
-}
-
-func (v *Value) String() string {
-	return fmt.Sprint(v.Out())
-}
-
-func (v *Value) Operate() string {
-	if v.isGt {
-		return ">"
-	} else if v.isGe {
-		return ">="
-	} else if v.isLt {
-		return "<"
-	} else if v.isLe {
-		return "<="
-	} else if v.isNe {
-		return "!="
-	} else if v.isBetween {
-		return "BETWEEN"
-	}
-	return "="
+	value    any
+	expr     bool
+	skip     bool
+	nonZero  bool
+	operator string // 运算符
 }
 
 // IsSkip 返回值是否被跳过
-func (v *Value) IsSkip() bool {
-	return v.isSkip ||
-		v.isNoZero && reflect.ValueOf(v.value).IsZero()
+func (v Value) IsSkip() bool {
+	return v.skip ||
+		v.nonZero && reflect.ValueOf(v.value).IsZero()
 }
 
-// Out 返回输出的 value 值
-func (v *Value) Out() any {
-	if b, ok := v.value.(*between); ok {
-		return fmt.Sprintf("%v AND %v", b.first.Out(), b.second.Out())
+func (v Value) String() string {
+	return fmt.Sprint(value(&v))
+}
+
+func operator(v any) (operator string) {
+	if val, ok := v.(*Value); ok {
+		operator = val.operator
+	}
+	if operator == "" {
+		return "="
+	}
+	return
+}
+
+func value(v any) any {
+	if val, ok := v.(*Value); ok {
+		if x, ok := val.value.([]*Value); ok {
+			return fmt.Sprintf("%s AND %s", x[0], x[1])
+		}
+
+		if s, ok := val.value.(string); ok && !val.expr {
+			return fmt.Sprintf("'%s'", s)
+		}
+
+		return val.value
 	}
 
-	if _, ok := v.value.(string); ok && !v.isExpr {
-		return fmt.Sprintf("'%s'", v.value)
+	if _, ok := v.(string); ok {
+		return fmt.Sprintf("'%s'", v)
 	}
 
-	return v.value
+	t := reflect.ValueOf(v)
+	if t.Kind() == reflect.Slice || t.Kind() == reflect.Array {
+		length, sql := t.Len(), ""
+		for i := 0; i < length; i++ {
+			x := t.Index(i).Interface() // 列表元素
+			if v, ok := x.(*Value); ok && v.IsSkip() {
+				continue
+			}
+			sql += fmt.Sprintf("%v, ", value(x))
+		}
+		return fmt.Sprintf("IN (%s)", strings.TrimRight(sql, ", "))
+	}
+
+	return v
 }
